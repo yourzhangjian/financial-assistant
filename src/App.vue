@@ -11,6 +11,6 @@ const test = () => {
 
 <template>
   <div style="font-size: 24px;margin: 20px;">测试</div>
-  <van-button type="primary" @click="test">主要按钮</van-button>
+  <van-button type="primary" @click="test">发起请求</van-button>
   <div>{{ result }}</div>
 </template>
