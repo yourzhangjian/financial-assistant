@@ -19,7 +19,7 @@ const onConfirm = () => {
     <div style="font-size: 24px;margin: 20px;">测试钉钉H5</div>
     <van-button type="primary" @click="test">发起请求</van-button>
     <div>{{ result }}</div>
-
+    
     <van-cell title="选择单个日期" :value="date" @click="show = true" />
     <van-calendar v-model:show="show" @confirm="onConfirm" />
 
