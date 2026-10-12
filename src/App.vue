@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
 const result = ref<any>(null)
-const active = ref(0)  
 const show = ref(false)  
 const date = ref('')
 const test = () => {
