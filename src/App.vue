@@ -10,7 +10,7 @@ const test = () => {
 </script>
 
 <template>
-  <div style="font-size: 24px;margin: 20px;">测试</div>
+  <div style="font-size: 24px;margin: 20px;">测试钉钉H5</div>
   <van-button type="primary" @click="test">发起请求</van-button>
   <div>{{ result }}</div>
 </template>
