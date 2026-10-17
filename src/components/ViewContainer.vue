@@ -1,17 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
-const router = useRouter()
-
-const title = computed(() => route.meta.title ?? '')
-const showNavbar = computed(() => route.meta.navbar !== false)
 const showTabbar = computed(() => route.meta.tabbar === true)
-const showBack = computed(() => route.meta.back !== false && !showTabbar.value)
-
-/** 有历史记录时返回上一页，否则回到首页（直接打开二级页面的场景） */
-function onBack() {
-  if (window.history.state?.back) router.back()
-  else router.replace('/')
-}
 </script>
 
 <template>
@@ -21,10 +10,11 @@ function onBack() {
       <slot />
     </div>
 
-    <van-tabbar route fixed safe-area-inset-bottom>
+    <van-tabbar v-if="showTabbar" route fixed safe-area-inset-bottom>
       <van-tabbar-item replace to="/" icon="wap-home-o">首页</van-tabbar-item>
       <van-tabbar-item replace to="/mine" icon="user-o">我的</van-tabbar-item>
     </van-tabbar>
+
   </div>
 </template>
 

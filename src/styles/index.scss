@@ -2,8 +2,14 @@
   --fa-page-bg: #f5f6fa;
   --fa-text-color: #323233;
   --fa-text-color-secondary: #969799;
-  --fa-expense-color: #ff6b6b;
-  --fa-income-color: #10ac84;
+  /** 买入 / 资金流出 */
+  --fa-buy-color: #ff7a45;
+  /** 卖出 / 资金流入 */
+  --fa-sell-color: #10ac84;
+  /** 上涨 / 盈利 */
+  --fa-up-color: #f5222d;
+  /** 下跌 / 亏损 */
+  --fa-down-color: #10ac84;
 }
 
 html,
@@ -42,4 +48,12 @@ ol {
 
 button {
   font-family: inherit;
+}
+
+.is-up {
+  color: var(--fa-up-color);
+}
+
+.is-down {
+  color: var(--fa-down-color);
 }

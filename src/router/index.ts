@@ -1,11 +1,13 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
+const APP_NAME = '财务助理'
+
 /**
  * 页面布局：
  * - 首页 / 我的：底部 tabbar 页面
- * - 记账（新增、编辑）/ 账单明细：二级页面，顶部导航栏自带返回按钮
- * - 登录：独立页面，不显示导航栏
+ * - 记一笔、编辑交易、交易明细：二级页面，由页面自己的 PageHeader 提供标题与返回
+ * - 登录：独立页面
  */
 const router = createRouter({
   // H5 内嵌容器（钉钉 / 微信等）下 hash 模式兼容性最好
@@ -15,25 +17,25 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('@/views/HomeView.vue'),
-      meta: { title: '财务助理', tabbar: true },
+      meta: { title: APP_NAME, tabbar: true },
     },
     {
-      path: '/bills',
-      name: 'bills',
-      component: () => import('@/views/BillsView.vue'),
-      meta: { title: '账单明细' },
+      path: '/trades',
+      name: 'trades',
+      component: () => import('@/views/TradesView.vue'),
+      meta: { title: '交易明细' },
     },
     {
-      path: '/record',
-      name: 'record',
-      component: () => import('@/views/RecordView.vue'),
+      path: '/trade',
+      name: 'trade',
+      component: () => import('@/views/TradeView.vue'),
       meta: { title: '记一笔' },
     },
     {
-      path: '/record/:id',
-      name: 'record-edit',
-      component: () => import('@/views/RecordView.vue'),
-      meta: { title: '编辑账单' },
+      path: '/trade/:id',
+      name: 'trade-edit',
+      component: () => import('@/views/TradeView.vue'),
+      meta: { title: '编辑交易' },
     },
     {
       path: '/mine',
@@ -45,7 +47,7 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
-      meta: { title: '登录', navbar: false, public: true },
+      meta: { title: '登录', public: true },
     },
     {
       path: '/:pathMatch(.*)*',
@@ -72,7 +74,8 @@ router.beforeEach((to) => {
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} · 财务助理` : '财务助理'
+  const title = to.meta.title
+  document.title = !title || title === APP_NAME ? APP_NAME : `${title} · ${APP_NAME}`
 })
 
 export default router

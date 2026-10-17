@@ -39,7 +39,7 @@ async function onSubmit() {
         <van-icon name="balance-list-o" />
       </div>
       <h1 class="login__title">财务助理</h1>
-      <p class="login__slogan">随手记一笔，收支心里有数</p>
+      <p class="login__slogan">黄金买卖记账，持仓收益一目了然</p>
     </header>
 
     <van-form @submit="onSubmit">

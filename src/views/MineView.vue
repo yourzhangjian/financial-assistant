@@ -2,44 +2,52 @@
 import { showConfirmDialog, showToast } from 'vant'
 import 'vant/es/dialog/style'
 import 'vant/es/toast/style'
-import type { BillPayload } from '@/types/bill'
-import { useBillStore } from '@/stores/bill'
+import type { TradePayload } from '@/types/gold'
+import { useTradeStore } from '@/stores/trade'
+import { useQuoteStore } from '@/stores/quote'
 import { useUserStore } from '@/stores/user'
-import { formatDate, getMonthKey } from '@/utils/date'
-import { formatAmount } from '@/utils/money'
+import { formatDate } from '@/utils/date'
+import { formatAmount, formatNumber, formatRate } from '@/utils/money'
 
 const router = useRouter()
 const { user, logout } = useUserStore()
-const { bills, totalSummary, monthSummary, addBill, clearBills } = useBillStore()
+const { trades, statsOf, holdings, addTrade, clearTrades } = useTradeStore()
+const quote = useQuoteStore()
 
-const total = computed(() => totalSummary())
-const monthTotal = computed(() => monthSummary(getMonthKey()))
+const stats = computed(() => statsOf())
+const holdingInfo = computed(() => holdings(quote.netValue.value))
 
 /** 载入示例数据，方便快速体验 */
 function loadSample() {
   const now = Date.now()
   const dayAgo = (days: number) => formatDate(new Date(now - days * 86400000))
-  const samples: BillPayload[] = [
-    { type: 'income', amount: 12000, categoryId: 'salary', note: '本月工资', date: dayAgo(3) },
-    { type: 'expense', amount: 1800, categoryId: 'housing', note: '房租', date: dayAgo(6) },
-    { type: 'expense', amount: 268, categoryId: 'shopping', note: '生活用品', date: dayAgo(1) },
-    { type: 'expense', amount: 199, categoryId: 'entertainment', note: '电影 + 晚餐', date: dayAgo(4) },
-    { type: 'expense', amount: 32.5, categoryId: 'food', note: '午餐', date: dayAgo(0) },
-    { type: 'expense', amount: 9, categoryId: 'traffic', note: '地铁', date: dayAgo(0) },
+
+  const samples: TradePayload[] = [
+    { type: 'buy', amount: 5000, netValue: 780.25, shares: 6.4076, fee: 0.5, note: '首次建仓', date: dayAgo(9) },
+    { type: 'buy', amount: 3000, netValue: 796.8, shares: 3.7647, fee: 0.3, note: '定期买入', date: dayAgo(7) },
+    { type: 'sell', amount: 1690.35, netValue: 845.6, shares: 2, fee: 0.85, note: '部分止盈', date: dayAgo(5) },
+    { type: 'buy', amount: 2000, netValue: 828.4, shares: 2.4141, fee: 0.2, note: '回调补仓', date: dayAgo(3) },
   ]
 
-  samples.forEach((item) => addBill(item))
+  samples.forEach((item) => addTrade(item))
+
+  // 最近三天的净值，用于展示日涨幅
+  quote.updateNetValue(824.1, dayAgo(2))
+  quote.updateNetValue(826.35, dayAgo(1))
+  quote.updateNetValue(828.4, dayAgo(0))
+
   showToast('示例数据已载入')
 }
 
 async function onClear() {
   try {
-    await showConfirmDialog({ title: '清空账单', message: '将删除全部账单记录，且无法恢复' })
+    await showConfirmDialog({ title: '清空数据', message: '将删除全部交易记录与净值记录，且无法恢复' })
   } catch {
     return
   }
 
-  clearBills()
+  clearTrades()
+  quote.clearNetValues()
   showToast('已清空')
 }
 
@@ -69,29 +77,38 @@ async function onLogout() {
 
     <section class="stats">
       <div class="stats__item">
-        <b>{{ total.count }}</b>
-        <span>累计记账（笔）</span>
+        <b>{{ stats.count }}</b>
+        <span>交易笔数</span>
       </div>
       <div class="stats__item">
-        <b class="stats__value--expense">¥{{ formatAmount(total.expense) }}</b>
-        <span>累计支出</span>
+        <b class="stats__value--buy">¥{{ formatAmount(stats.buyAmount) }}</b>
+        <span>累计买入</span>
       </div>
       <div class="stats__item">
-        <b class="stats__value--income">¥{{ formatAmount(total.income) }}</b>
-        <span>累计收入</span>
+        <b class="stats__value--sell">¥{{ formatAmount(stats.sellAmount) }}</b>
+        <span>累计卖出</span>
+      </div>
+      <div class="stats__item">
+        <b>¥{{ formatAmount(stats.fee) }}</b>
+        <span>手续费合计</span>
       </div>
     </section>
 
     <van-cell-group inset class="mine__cells">
+      <van-cell title="持有份额" :value="`${formatNumber(holdingInfo.shares, 4)} 克`" />
+      <van-cell title="持有金额" :value="`¥${formatAmount(holdingInfo.amount)}`" />
+      <van-cell title="持有成本" :value="`¥${formatAmount(holdingInfo.cost)}`" />
+      <van-cell title="基金净值" :value="`${formatNumber(quote.netValue.value, 4)} 元/克`" />
       <van-cell
-        title="本月账单"
-        :value="`共 ${monthTotal.count} 笔`"
-        is-link
-        @click="router.push('/bills')"
+        title="日涨幅"
+        :value="quote.hasChange.value ? formatRate(quote.changeRate.value) : '--'"
       />
-      <van-cell title="全部账单" :value="`共 ${bills.length} 笔`" is-link @click="router.push('/bills')" />
+    </van-cell-group>
+
+    <van-cell-group inset class="mine__cells">
+      <van-cell title="交易明细" :value="`共 ${trades.length} 笔`" is-link @click="router.push('/trades')" />
       <van-cell title="载入示例数据" is-link @click="loadSample" />
-      <van-cell title="清空账单数据" is-link @click="onClear" />
+      <van-cell title="清空全部数据" is-link @click="onClear" />
     </van-cell-group>
 
     <div class="mine__logout">
@@ -142,7 +159,9 @@ async function onLogout() {
 }
 
 .stats {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 0;
   margin-top: 12px;
   padding: 16px 0;
   border-radius: 12px;
@@ -150,14 +169,13 @@ async function onLogout() {
 
   &__item {
     display: flex;
-    flex: 1;
     flex-direction: column;
     align-items: center;
     gap: 6px;
     font-size: 12px;
     color: var(--fa-text-color-secondary);
 
-    & + & {
+    &:nth-child(even) {
       border-left: 1px solid #f2f3f5;
     }
 
@@ -168,12 +186,12 @@ async function onLogout() {
     }
   }
 
-  &__value--expense {
-    color: var(--fa-expense-color) !important;
+  &__value--buy {
+    color: var(--fa-buy-color) !important;
   }
 
-  &__value--income {
-    color: var(--fa-income-color) !important;
+  &__value--sell {
+    color: var(--fa-sell-color) !important;
   }
 }
 
