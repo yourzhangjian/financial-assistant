@@ -1,27 +1,22 @@
 <script setup lang="ts">
-import axios from 'axios'
-const result = ref<any>(null)
-const show = ref(false)  
-const date = ref('')
-const test = () => {
-  axios.get('https://jsonplaceholder.typicode.com/posts/1').then((response) => {
-    console.log(response.data)
-    result.value = response.data
-  })
-}
-const onConfirm = () => {
-  show.value = false
+import type { ConfigProviderThemeVars } from 'vant'
+
+/** vant 主题变量：theme-vars-scope="global" 时写入 :root，避免样式顺序影响 */
+const themeVars: ConfigProviderThemeVars = {
+  primaryColor: '#5b8cff',
+  successColor: '#10ac84',
+  dangerColor: '#ff6b6b',
+  textColor2: '#66696e',
+  textColor3: '#969799',
+  radiusMd: '8px',
+  radiusLg: '12px',
 }
 </script>
 
 <template>
-  <view-container>
-    <div style="font-size: 24px;margin: 20px;">测试钉钉H5</div>
-    <van-button type="primary" @click="test">发起请求</van-button>
-    <div>{{ result }}</div>
-    
-    <van-cell title="选择单个日期" :value="date" @click="show = true" />
-    <van-calendar v-model:show="show" @confirm="onConfirm" />
-
-  </view-container>
+  <van-config-provider :theme-vars="themeVars" theme-vars-scope="global">
+    <view-container>
+      <router-view />
+    </view-container>
+  </van-config-provider>
 </template>
