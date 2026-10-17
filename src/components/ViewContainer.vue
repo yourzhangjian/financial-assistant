@@ -16,21 +16,12 @@ function onBack() {
 
 <template>
   <div class="view-container">
-    <van-nav-bar
-      v-if="showNavbar"
-      :title="title"
-      :left-arrow="showBack"
-      placeholder
-      fixed
-      safe-area-inset-top
-      @click-left="onBack"
-    />
 
     <div class="view-container__body" :class="{ 'view-container__body--tabbar': showTabbar }">
       <slot />
     </div>
 
-    <van-tabbar v-if="showTabbar" route fixed safe-area-inset-bottom>
+    <van-tabbar route fixed safe-area-inset-bottom>
       <van-tabbar-item replace to="/" icon="wap-home-o">首页</van-tabbar-item>
       <van-tabbar-item replace to="/mine" icon="user-o">我的</van-tabbar-item>
     </van-tabbar>
